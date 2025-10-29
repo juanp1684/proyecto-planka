@@ -1,0 +1,12 @@
+.venv
+venv
+.env
+env
+**/__pycache__/
+.idea/misc.xml
+.idea/workspace.xml
+**/.pytest_cache/
+.idea
+__pycache__
+.DS_Store
+pytest_cache
