@@ -4,8 +4,8 @@ import jsonschema
 import pytest
 from config import BASE_URI , TOKEN_INVALID , ID_PROJECT1 , ID_PROJECT_NOT_EXISTS ,ID_PROJECT_INVALID_STRING,ID_PROJECT_EMPTY
 from src.assertions.status_code import assert_status_code_200 , assert_status_code_401, assert_status_code_400,assert_status_code_404,assert_status_code_400_or_404
-from src.resources.payloads.project_payloads import PAYLOAD_BOARD_CREATE , PAYLOAD_BOARD_EMPTY_NAME,PAYLOAD_BOARD_EMPTY_POSITION, PAYLOAD_BOARD_NAME_VALUE_NUMBER,PAYLOAD_BOARD_POSITION_NEGATIVE,PAYLOAD_BOARD_POSITION_INVALID_TYPE,PAYLOAD_BOARD_POSITION_LARGE
-from src.resources.schemas.project_schema import SCHEMA_BOARD_OUTPUT
+from src.resources.payloads.board_payloads import PAYLOAD_BOARD_CREATE , PAYLOAD_BOARD_EMPTY_NAME,PAYLOAD_BOARD_EMPTY_POSITION, PAYLOAD_BOARD_NAME_VALUE_NUMBER,PAYLOAD_BOARD_POSITION_NEGATIVE,PAYLOAD_BOARD_POSITION_INVALID_TYPE,PAYLOAD_BOARD_POSITION_LARGE
+from src.resources.schemas.board_schema import SCHEMA_BOARD_OUTPUT
 
 
 

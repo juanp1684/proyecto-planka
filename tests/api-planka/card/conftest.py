@@ -2,7 +2,7 @@ import requests
 import json
 import pytest
 from config import BASE_URI, ID_LIST2
-from src.resources.payloads.project_payloads import PAYLOAD_CREATE_CARD
+from src.resources.payloads.card_payloads import PAYLOAD_CREATE_CARD
 
 
 @pytest.fixture(scope="module")

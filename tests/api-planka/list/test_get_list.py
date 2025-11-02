@@ -4,7 +4,7 @@ import jsonschema
 from config import BASE_URI , ID_LIST1 , TOKEN_INVALID
 from src.assertions.status_code import assert_status_code_200,assert_status_code_401
 from src.assertions.assertion_general import assert_response_time
-from src.resources.schemas.project_schema import SCHEMA_ITEM_LIST , SCHEMA_INCLUDED_LIST
+from src.resources.schemas.list_schema import SCHEMA_ITEM_LIST , SCHEMA_INCLUDED_LIST
 
 
 @pytest.mark.list

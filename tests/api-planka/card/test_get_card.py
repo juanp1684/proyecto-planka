@@ -4,7 +4,7 @@ import jsonschema
 from config import BASE_URI , TOKEN_INVALID , ID_CARD1
 from src.assertions.status_code import assert_status_code_200,assert_status_code_401
 from src.assertions.assertion_general import assert_response_time
-from src.resources.schemas.project_schema import SCHEMA_CARD_WITHOUT_STOPWATCH,SCHEMA_CARD_WITH_STOPWATCH
+from src.resources.schemas.card_schema import SCHEMA_CARD_WITHOUT_STOPWATCH,SCHEMA_CARD_WITH_STOPWATCH
 
 
 

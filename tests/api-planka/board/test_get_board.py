@@ -3,7 +3,7 @@ import pytest
 import jsonschema
 from config import  BASE_URI , TOKEN_INVALID , ID_BOARD2
 from src.assertions.status_code import assert_status_code_200, assert_status_code_401
-from src.resources.schemas.project_schema import SCHEMA_BOARD_OUTPUT2
+from src.resources.schemas.board_schema import SCHEMA_BOARD_OUTPUT2
 from src.assertions.assertion_general import assert_response_time
 
 @pytest.mark.board
