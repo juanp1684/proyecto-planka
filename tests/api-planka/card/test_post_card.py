@@ -8,6 +8,9 @@ from src.resources.payloads.card_payloads import PAYLOAD_CREATE_CARD , PAYLOAD_C
 from src.resources.schemas.card_schema import SCHEMA_CARD_PAYLOAD_INPUT
 from src.routes.endpoint import EndpointPlanka
 from utils.logger_helper import log_request_response
+from src.assertions.schema_assertion import AssertionSchemas
+
+
 
 
 @pytest.mark.card
@@ -62,12 +65,9 @@ def test_TC003_validate_card_creation_request_payload(get_token):
     log_request_response(url, response, headers, payload)
     assert_status_code_200(response)
 
-    try:
-        jsonschema.validate(PAYLOAD_CREATE_CARD, schema= SCHEMA_CARD_PAYLOAD_INPUT)
-    except jsonschema.exceptions.ValidationError as error:
-        pytest.fail(f"JSON schema doesn't match: {error}")
+    AssertionSchemas.validate_input_schema(PAYLOAD_CREATE_CARD, SCHEMA_CARD_PAYLOAD_INPUT)
 
-
+   
 
 @pytest.mark.card
 @pytest.mark.functional_positive
@@ -226,6 +226,7 @@ def test_TC012_post_card_validate_attribute_with_name_empty(get_token):
     response = requests.post(url, headers=headers, data=payload)
     log_request_response(url, response, headers, payload)
     assert_status_code_400(response)
+
 
 @pytest.mark.xfail(reason=" BUG007: La atributo name  permite entradas de valor numerico ",run=True)
 @pytest.mark.card

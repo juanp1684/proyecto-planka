@@ -7,6 +7,7 @@ from src.assertions.status_code import assert_status_code_200, assert_status_cod
 from src.assertions.assertion_general import assert_response_time
 from src.resources.schemas.list_schema import SCHEMA_ITEM_LIST , SCHEMA_INCLUDED_LIST
 from utils.logger_helper import log_request_response
+from src.assertions.schema_assertion import AssertionSchemas
 
 
 
@@ -75,17 +76,10 @@ def test_TC021_validate_list_response_schema(get_token):
    
     assert_status_code_200(response)
 
+    AssertionSchemas.validate_list_output_schema(data["item"],SCHEMA_ITEM_LIST)
+    AssertionSchemas.validate_list_output_schema(data["included"],SCHEMA_INCLUDED_LIST)
+    
 
-    try:
-        jsonschema.validate(instance=data["item"], schema=SCHEMA_ITEM_LIST)
-    except jsonschema.exceptions.ValidationError as e:
-        pytest.fail(f"JSON schema for 'item' doesn't match: {e}")
-
-
-    try:
-        jsonschema.validate(instance=data["included"], schema=SCHEMA_INCLUDED_LIST)
-    except jsonschema.exceptions.ValidationError as e:
-        pytest.fail(f"JSON schema for 'included' doesn't match: {e}")
 
 
 @pytest.mark.list

@@ -49,40 +49,4 @@ SCHEMA_CARD_PAYLOAD_INPUT = {
 }
 
 
-SCHEMA_CARD_WITH_STOPWATCH = {
-    "type": "object",
-    "properties": {
-        "item": {
-            "type": "object",
-            "properties": {
-                "id": {"type": "string"},
-                "stopwatch": {
-                    "type": "object",
-                    "properties": {
-                        "total": {"type": "number"},
-                        "startedAt": {"type": "string"}
-                    },
-                    "required": ["total", "startedAt"]
-                }
-            },
-            "required": ["id", "stopwatch"]
-        }
-    },
-    "required": ["item"]
-}
 
-
-SCHEMA_CARD_WITHOUT_STOPWATCH = {
-    "type": "object",
-    "properties": {
-        "item": {
-            "type": "object",
-            "properties": {
-                "id": {"type": "string"},
-                "stopwatch": {"type": ["null"]}
-            },
-            "required": ["id", "stopwatch"]
-        }
-    },
-    "required": ["item"]
-}

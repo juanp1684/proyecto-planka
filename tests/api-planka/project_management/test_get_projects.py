@@ -7,7 +7,7 @@ from src.assertions.status_code import assert_status_code_200 , assert_status_co
 from src.assertions.assertion_general import assert_response_time
 from src.resources.schemas.project_schema import SCHEMA_OUTPUT_GET_PROJECTS
 from utils.logger_helper import log_request_response
-
+from src.assertions.schema_assertion import AssertionSchemas
 
 
 @pytest.mark.project_management
@@ -53,14 +53,9 @@ def test_TC013_get_project_validate_schema_output(get_token):
     response = requests.get(url,headers=headers)
     log_request_response(url, response, headers)
     assert_status_code_200(response)
-    
+    AssertionSchemas.validate_output_schema(response , SCHEMA_OUTPUT_GET_PROJECTS)
 
-    try:
-            jsonschema.validate(instance=response.json(), schema= SCHEMA_OUTPUT_GET_PROJECTS)
-    except jsonschema.exceptions.ValidationError as error:
-            pytest.fail(f"JSON schema doesn't match: {error}")
-
-
+   
 
 @pytest.mark.project_management
 @pytest.mark.functional_positive

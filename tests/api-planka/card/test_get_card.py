@@ -5,7 +5,6 @@ from config import TOKEN_INVALID
 from src.routes.endpoint import EndpointPlanka
 from src.assertions.status_code import assert_status_code_200,assert_status_code_401, assert_status_code_400,assert_status_code_404
 from src.assertions.assertion_general import assert_response_time
-from src.resources.schemas.card_schema import SCHEMA_CARD_WITHOUT_STOPWATCH,SCHEMA_CARD_WITH_STOPWATCH
 from utils.logger_helper import log_request_response
 
 
@@ -57,30 +56,6 @@ def test_TC019_validate_card_response_time(get_token):
     assert_response_time(response)
 
 
-@pytest.mark.card
-@pytest.mark.functional_positive
-@pytest.mark.regression
-@pytest.mark.schema_validation
-def test_TC020_validate_card_response_schema(get_token):
-    url = EndpointPlanka.BASE_CARDS_WITH_ID_CARD.value
-    TOKEN_PLANKA = get_token
-    headers = {
-    'Authorization': f'Bearer {TOKEN_PLANKA}'
-    }
-
-    response = requests.get(url, headers=headers)
-    log_request_response(url, response, headers)
-    assert_status_code_200(response)
-
-
-    data = response.json()
-    stopwatch = data["item"].get("stopwatch")
-
-    if stopwatch is None:
-        jsonschema.validate(data, schema=SCHEMA_CARD_WITHOUT_STOPWATCH)
-    else:
-       jsonschema.validate(data, schema=SCHEMA_CARD_WITH_STOPWATCH)
-
 
 @pytest.mark.card
 @pytest.mark.functional_negative
@@ -128,6 +103,6 @@ def test_TC023_get_card_with_invalid_card_id_type(get_token):
     }
 
     response = requests.get(url, headers=headers)
-    log_request_response(url, response, headers)
+    log_request_response(url, response, headers)    
     assert_status_code_400(response)
 

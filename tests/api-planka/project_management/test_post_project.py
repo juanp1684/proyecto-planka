@@ -6,7 +6,9 @@ from config import TOKEN_INVALID
 from src.routes.endpoint import EndpointPlanka
 from src.assertions.status_code import assert_status_code_200,assert_status_code_400,assert_status_code_401
 from src.resources.payloads.project_payloads import PAYLOAD_PROJECT_CREATE , PAYLOAD_PROJECT_CREATE_NAME_EMPTY ,PAYLOAD_PROJECT_CREATE_TYPE_EMPTY ,PAYLOAD_PROJECT_CREATE_TYPE_SHARED,PAYLOAD_PROJECT_CREATE_TYPE_PRIVATE,PAYLOAD_PROJECT_CREATE_TYPE_INVALID,PAYLOAD_PROJECT_CREATE_NAME_NUMBER
-from src.resources.schemas.project_schema import SCHEMA_OUTPUT_CREATE_PROJECT,SCHEMA_INPUT_CREATE_PROJECT
+from src.resources.schemas.project_schema import SCHEMA_INPUT_CREATE_PROJECT,SCHEMA_OUTPUT_CREATE_PROJECT
+from src.assertions.schema_assertion import AssertionSchemas
+
 
 from utils.logger_helper import log_request_response
 
@@ -59,12 +61,8 @@ def test_TC003_validate_project_creation_response_payload(get_token):
     response = requests.post(url, headers=headers, data=payload)
     log_request_response(url, response, headers, payload)
     assert_status_code_200(response)
+    AssertionSchemas.validate_output_schema(response , SCHEMA_OUTPUT_CREATE_PROJECT)
 
-
-    try:
-        jsonschema.validate(instance=response.json(), schema= SCHEMA_OUTPUT_CREATE_PROJECT)
-    except jsonschema.exceptions.ValidationError as error:
-        pytest.fail(f"JSON schema doesn't match: {error}")
 
 
 @pytest.mark.project_management
@@ -81,12 +79,7 @@ def test_TC004_validate_project_creation_request_payload(get_token):
     response = requests.post(url,headers=headers,json=PAYLOAD_PROJECT_CREATE)
     log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE)
     assert_status_code_200(response)
-
-
-    try:
-        jsonschema.validate(PAYLOAD_PROJECT_CREATE, schema= SCHEMA_INPUT_CREATE_PROJECT)
-    except jsonschema.exceptions.ValidationError as error:
-        pytest.fail(f"JSON schema doesn't match: {error}")
+    AssertionSchemas.validate_input_schema(PAYLOAD_PROJECT_CREATE,SCHEMA_INPUT_CREATE_PROJECT)
 
 
 

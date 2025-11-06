@@ -8,7 +8,7 @@ from src.assertions.status_code import assert_status_code_200 , assert_status_co
 from src.resources.payloads.list_payloads import PAYLOAD_CREATE_LIST , PAYLOAD_CREATE_LIST_TYPE_ACTIVE , PAYLOAD_CREATE_LIST_TYPE_ACTIVE,PAYLOAD_CREATE_LIST_TYPE_CLOSED,PAYLOAD_CREATE_LIST_EMPTY_TYPE,PAYLOAD_CREATE_LIST_EMPTY_POSITION,PAYLOAD_CREATE_LIST_EMPTY_NAME,PAYLOAD_CREATE_LIST_INVALID_TYPE,PAYLOAD_CREATE_LIST_INVALID_POSITION ,PAYLOAD_CREATE_LIST_INVALID_NAME,PAYLOAD_CREATE_LIST_POSITION_VALUE_NEGATIVE,PAYLOAD_CREATE_LIST_POSITION_VALUE_EXCEEDS
 from src.resources.schemas.list_schema import SCHEMA_CREATE_LIST_OUTPUT,SCHEMA_LIST_PAYLOAD_INPUT
 from utils.logger_helper import log_request_response
-
+from src.assertions.schema_assertion import AssertionSchemas
 
 
 
@@ -98,6 +98,7 @@ def test_TC005_post_list_attribute_with_type_empty(get_token):
     response = requests.post(url, headers=headers, data=payload)
     log_request_response(url, response, headers, payload)
     assert_status_code_400(response)
+
 
 @pytest.mark.list
 @pytest.mark.functional_negative
@@ -246,11 +247,8 @@ def test_TC013_validate_list_creation_response_schema(get_token):
     log_request_response(url, response, headers, payload)
     assert_status_code_200(response)
 
-    try:
-        jsonschema.validate(instance=response.json(), schema= SCHEMA_CREATE_LIST_OUTPUT)
-    except jsonschema.exceptions.ValidationError as error:
-        pytest.fail(f"JSON schema doesn't match: {error}")
-
+    AssertionSchemas.validate_output_schema(response,SCHEMA_CREATE_LIST_OUTPUT)
+   
 
 @pytest.mark.list
 @pytest.mark.functional_positive
@@ -267,11 +265,9 @@ def test_TC014_validate_list_creation_request_payload(get_token):
     log_request_response(url, response, headers, payload)
     assert_status_code_200(response)
 
-    try:
-        jsonschema.validate(PAYLOAD_CREATE_LIST, schema= SCHEMA_LIST_PAYLOAD_INPUT)
-    except jsonschema.exceptions.ValidationError as error:
-        pytest.fail(f"JSON schema doesn't match: {error}")
+    AssertionSchemas.validate_input_schema(PAYLOAD_CREATE_LIST,SCHEMA_LIST_PAYLOAD_INPUT)
 
+    
 
 
 @pytest.mark.list
