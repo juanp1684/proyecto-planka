@@ -2,8 +2,6 @@ import requests
 
 
 class PlankaRequests:
-   
-    
     @staticmethod
     def post(url,headers,payload=None):
         response = requests.post(url, headers=headers, json=payload)

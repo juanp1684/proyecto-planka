@@ -1,6 +1,4 @@
-BASE_URI = "http://localhost:3000/api"
-USER_EMAIL = "danielabravo2308@gmail.com"
-USER_PASSWORD = "db8826267"
+
 TOKEN_INVALID = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 #------------------------------------
 ID_PROJECT1 = "1632990113560528788"
