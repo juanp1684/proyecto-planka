@@ -69,7 +69,8 @@ jobs:
           pytest -m "${{ inputs.mark }}" --alluredir=allure-results
       
       - name: Instalar Allure CLI
-        uses: simple-elf/allure-commandline-action@v2.0
+        uses: simple-elf/allure-report-action@v1.7
+        if: always()
         with:
           allure-version: 2.27.0
 
