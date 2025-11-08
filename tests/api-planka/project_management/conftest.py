@@ -33,8 +33,8 @@ def setup_add_project(get_token):
         try:
               delete_url = f"{EndpointPlanka.BASE_PROJECTS.value}/{project_id}"
               headers = {'Authorization': f'Bearer {get_token}'} 
-              delete_response = PlankaRequests.delete(delete_url,headers=headers)
-              if AssertionStatusCode.assert_status_code_200(delete_response) == 200:
+              delete_response = PlankaRequests.delete(delete_url,headers)
+              if delete_response.status_code == 200:
                     logger.info(f"Proyecto eliminado correctamente: {project_id}")
               else:
                    logger.error(f" No se pudo eliminar el proyecto {project_id}. ")

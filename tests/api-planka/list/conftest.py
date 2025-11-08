@@ -39,8 +39,8 @@ def setup_add_list(get_token):
         try:
             delete_url = f"{EndpointPlanka.BASE_LIST_MAJOR.value}/{list_id}"
             headers = {'Authorization': f'Bearer {get_token}'} 
-            delete_response = PlankaRequests.delete(delete_url,headers=headers)
-            if AssertionStatusCode.assert_status_code_200(delete_response) == 200:
+            delete_response = PlankaRequests.delete(delete_url,headers)
+            if delete_response.status_code == 200:
                      logger.info(f"Lista eliminado correctamente: {list_id}")
             else:
                     logger.error(f" No se pudo eliminar el lista {list_id}. ")
