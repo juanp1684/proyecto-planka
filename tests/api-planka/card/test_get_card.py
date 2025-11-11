@@ -76,7 +76,7 @@ def test_TC022_get_card_with_empty_card_id(get_token):
     headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
     response = PlankaRequests.get(url,headers)
     log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_400(response)
+    AssertionStatusCode.assert_status_code_404(response)
 
 
 

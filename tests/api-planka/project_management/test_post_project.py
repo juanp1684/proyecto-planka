@@ -9,17 +9,35 @@ from utils.logger_helper import log_request_response
 from src.routes.request import PlankaRequests
 
 
+
+# Se define con mark el modulo a evaluar
 @pytest.mark.project_management
+
+# Se define el tipo de prueba 
 @pytest.mark.smoke
 @pytest.mark.functional_positive
 @pytest.mark.headers_validation
+
+# Titulo del Caso de Prueba
 def test_TC001_create_project_with_valid_token(setup_add_project):
-    url = EndpointPlanka.BASE_PROJECTS.value
+
+    # Ambiente
     get_token , created_projects = setup_add_project
+    url = EndpointPlanka.BASE_PROJECTS.value
     headers = {'Authorization': f'Bearer {get_token}'}
+
+    # Pasos 
+    
+    # 1. Ejecucion del Flujo  de pruebas
     response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE)
+
+    # Registro de Ejecucion
     log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE)
+
+    # 2. Se verifica el resultado actual con el resultado obtenido
     AssertionStatusCode.assert_status_code_200(response)
+
+    # Se aplica Teardown : Limpieza del entorno de prueba
     created_projects.append(response.json())
 
   

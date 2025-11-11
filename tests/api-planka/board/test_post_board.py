@@ -140,7 +140,7 @@ def test_TC008_create_board_with_position_attribute_exceeding_digit(setup_add_bo
 
 
 @pytest.mark.board
-@pytest.mark.functional_negative
+@pytest.mark.functional_positive
 @pytest.mark.regression
 @pytest.mark.schema_validation
 def test_TC009_validate_board_response_schema(setup_add_board):
