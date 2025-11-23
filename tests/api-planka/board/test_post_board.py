@@ -14,29 +14,31 @@ from src.routes.request import PlankaRequests
 @pytest.mark.board
 @pytest.mark.smoke
 @pytest.mark.functional_positive
+@pytest.mark.functional_negative
 @pytest.mark.headers_validation
-def test_TC001_create_board_with_valid_token(setup_add_board):
-    get_token,created_boards = setup_add_board
+@pytest.mark.parametrize(
+    "use_fixture,token_value,expected_status",
+    [(True,None,200),
+     (False,TOKEN_INVALID,401)
+    ],
+    ids=[
+        "TC001: create_board_with_valid_token",
+        "TC002: create_board_with_invalid_token"
+    ])
+
+def test_create_board_with_token(setup_add_board,use_fixture,token_value,expected_status):
+    get_token, created_boards = (setup_add_board if use_fixture else (token_value, []))
+
     url = EndpointPlanka.BASE_BOARDS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
+    headers = {'Authorization': f'Bearer {get_token}'}
     response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_CREATE)
     log_request_response(url, response, headers, PAYLOAD_BOARD_CREATE)
-    AssertionStatusCode.assert_status_code_200(response)
-    created_boards.append(response.json())
 
-
-
-
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.headers_validation 
-def test_TC002_create_board_with_invalid_token():
-    url = EndpointPlanka.BASE_BOARDS.value
-    headers = {'Authorization': f'Bearer {TOKEN_INVALID}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_CREATE)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_CREATE)
-    AssertionStatusCode.assert_status_code_401(response)
+    if expected_status == 200:
+        AssertionStatusCode.assert_status_code_200(response)
+        created_boards.append(response.json())
+    else:
+      AssertionStatusCode.assert_status_code_401(response)
 
 
 
@@ -45,33 +47,26 @@ def test_TC002_create_board_with_invalid_token():
 @pytest.mark.regression
 @pytest.mark.equivalence_partition
 @pytest.mark.payload_validation
-def test_TC003_create_board_with_empty_name(get_token):
+@pytest.mark.parametrize(
+    "payload , expected_status",
+    [
+        pytest.param(PAYLOAD_BOARD_EMPTY_NAME,400,
+                   id="TC003: create_board_with_attribute_name_empty"),
+
+        pytest.param(PAYLOAD_BOARD_NAME_VALUE_NUMBER,400,
+                  marks=pytest.mark.xfail(reason="BUG001: El atributo name  permite entradas de valor numerico"),
+                  id="TC004: create_card_board_with_attribute_name_invalid")
+    ])
+
+def test_post_board_validate_attribute_with_name(get_token,payload,expected_status):
     url = EndpointPlanka.BASE_BOARDS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_EMPTY_NAME)
-    log_request_response(url, response, headers,PAYLOAD_BOARD_EMPTY_NAME)
-    AssertionStatusCode.assert_status_code_400(response)
+    headers = {'Authorization': f'Bearer {get_token}'}
+    response = PlankaRequests.post(url,headers,payload)
+    log_request_response(url, response, headers, payload)
+    if expected_status==400:
+        AssertionStatusCode.assert_status_code_400(response)
 
 
-
-@pytest.mark.xfail(reason=" BUG001: El atributo name  permite entradas de valor numerico ",run=True)
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-@pytest.mark.payload_validation
-def test_TC004_create_board_with_numeric_name(setup_add_board):
-    get_token,created_boards = setup_add_board
-    url = EndpointPlanka.BASE_BOARDS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_NAME_VALUE_NUMBER)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_NAME_VALUE_NUMBER)
-    AssertionStatusCode.assert_status_code_404(response)
-    created_boards.append(response.json())
-
-    
 
 
 @pytest.mark.board
@@ -79,71 +74,69 @@ def test_TC004_create_board_with_numeric_name(setup_add_board):
 @pytest.mark.regression
 @pytest.mark.equivalence_partition
 @pytest.mark.payload_validation
-def test_TC005_create_board_with_empty_position(get_token):
-    url = EndpointPlanka.BASE_BOARDS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_EMPTY_POSITION)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_EMPTY_POSITION)
-    AssertionStatusCode.assert_status_code_400(response)
+@pytest.mark.parametrize(
+    "payload , expected_status",
+    [
+       pytest.param(PAYLOAD_BOARD_EMPTY_POSITION,400,
+                   id="TC005: create_board_with_attribute_position_empty"),
 
+        pytest.param(PAYLOAD_BOARD_POSITION_NEGATIVE,400,
+                  id="TC006: create_board_with_attribute_position_negative"),
+        
+        pytest.param(PAYLOAD_BOARD_POSITION_INVALID_TYPE,400,
+                   marks=pytest.mark.xfail(reason="BUG002: El campo position  permite ingresar valores de tipo cadena"),
+                   id="TC007: create_board_with_attribute_position_invalid_type"),
 
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-@pytest.mark.payload_validation
-def test_TC006_create_board_with_negative_position(get_token):
-    url = EndpointPlanka.BASE_BOARDS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_POSITION_NEGATIVE)
-    log_request_response(url, response, headers,PAYLOAD_BOARD_POSITION_NEGATIVE)
-    AssertionStatusCode.assert_status_code_400(response)
+        pytest.param(PAYLOAD_BOARD_POSITION_LARGE,400,
+                  marks=pytest.mark.xfail(reason="BUG003: El campo position no tiene un valor limite de cantidad de digitos"),
+                  id="TC008: create_board_with_attribute_position_large")
 
+    ])
 
-
-@pytest.mark.xfail(reason=" BUG002: El campo position  permite ingresar valores de tipo cadena ",run=True)
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-@pytest.mark.payload_validation
-def test_TC007_create_board_with_invalid_position_type(setup_add_board):
-    get_token,created_boards = setup_add_board
-    url = EndpointPlanka.BASE_BOARDS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_POSITION_INVALID_TYPE)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_POSITION_INVALID_TYPE)
-    AssertionStatusCode.assert_status_code_404(response)
-    created_boards.append(response.json())
-
-
-
-@pytest.mark.xfail(reason=" BUG003: El atributo position no tiene un valor limite de cantidad de digitos ",run=True)
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-@pytest.mark.payload_validation
-def test_TC008_create_board_with_position_attribute_exceeding_digit(setup_add_board):
-    get_token,created_boards = setup_add_board
-    url = EndpointPlanka.BASE_BOARDS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_POSITION_LARGE)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_POSITION_LARGE)
-    AssertionStatusCode.assert_status_code_400(response)
-    created_boards.append(response.json())
+def test_post_board_validate_attribute_with_position(get_token,payload,expected_status):
+       url = EndpointPlanka.BASE_BOARDS.value
+       headers = {'Authorization': f'Bearer {get_token}'}
+       response = PlankaRequests.post(url,headers,payload)
+       log_request_response(url, response, headers, payload)
+       
+       if expected_status==400:
+        AssertionStatusCode.assert_status_code_400(response)
 
 
 
 @pytest.mark.board
 @pytest.mark.functional_positive
+@pytest.mark.functional_negative
 @pytest.mark.regression
 @pytest.mark.schema_validation
-def test_TC009_validate_board_response_schema(setup_add_board):
+@pytest.mark.parametrize(
+    "url_id_project , expected_status", [
+        pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_NOT_EXISTS.value,404,
+                      marks=pytest.mark.xfail(reason="BUG004: Código HTTP incorrecto se retorna 400 en lugar de 404 al consultar un recurso inexistente"),
+                   id="TC009: create_board_with_nonexistent_project_id"),
+        
+        pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_EMPTY.value,400,
+                   marks=pytest.mark.xfail(reason="BUG005: Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso vacio"),
+                   id="TC010: create_board_with_empty_project_id"),
+        
+        pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_INVALID.value,400,
+                   id="TC011: create_board_with_invalid_project_id_type")
+    ])
+
+def test_post_board_with_project_id(get_token,url_id_project,expected_status):
+    url = url_id_project
+    headers = {'Authorization': f'Bearer {get_token}'}
+    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_CREATE)
+    log_request_response(url, response, headers, PAYLOAD_BOARD_CREATE)
+    if expected_status==404:
+        AssertionStatusCode.assert_status_code_404(response)
+    else:
+        AssertionStatusCode.assert_status_code_400(response)
+
+
+
+
+def test_TC012_validate_board_response_schema(setup_add_board):
     get_token,created_boards = setup_add_board
     TOKEN_PLANKA = get_token
     url = EndpointPlanka.BASE_BOARDS.value
@@ -155,43 +148,4 @@ def test_TC009_validate_board_response_schema(setup_add_board):
     created_boards.append(response.json())
 
  
-    
-
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC010_post_board_with_nonexistent_project_id(get_token):
-    url = EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_NOT_EXISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_CREATE)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_CREATE)
-    AssertionStatusCode.assert_status_code_400_or_404(response)
-
-
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC011_post_board_with_empty_project_id(get_token):
-    url = EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_EMPTY.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_CREATE)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_CREATE)
-    AssertionStatusCode.assert_status_code_404(response)
-
-
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC012_post_board_with_invalid_project_id_type(get_token):
-    url = EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_INVALID.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_CREATE)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_CREATE)
-    AssertionStatusCode.assert_status_code_400(response)
-
+  

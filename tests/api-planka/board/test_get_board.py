@@ -15,25 +15,31 @@ from src.routes.request import PlankaRequests
 @pytest.mark.board
 @pytest.mark.smoke
 @pytest.mark.functional_positive
+@pytest.mark.functional_negative
 @pytest.mark.headers_validation
-def test_TC013_get_board_with_valid_token(get_token):
-    TOKEN_PLANKA = get_token
+@pytest.mark.parametrize(
+    "use_fixture,token_value,expected_status",
+    [(True,None,200),
+     (False,TOKEN_INVALID,401)
+    ],
+    ids=[
+        "TC013: get_board_with_valid_token",
+        "TC014: get_board_with_invalid_token"
+    ])
+
+def test_get_board_with_token(get_token,use_fixture,token_value,expected_status):
+    TOKEN_PLANKA = (get_token if use_fixture else (token_value))
+
     url = EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD.value
     headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
     response = PlankaRequests.get(url,headers)
     log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_200(response)
 
-
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.headers_validation
-def test_TC014_get_board_with_invalid_token():
-    url = EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD.value
-    headers = {'Authorization': f'Bearer {TOKEN_INVALID}'}
-    response = PlankaRequests.get(url,headers)
-    log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_401(response)
+    if expected_status == 200:
+        AssertionStatusCode.assert_status_code_200(response)
+    
+    else:
+      AssertionStatusCode.assert_status_code_401(response)
 
 
 
@@ -68,39 +74,26 @@ def test_TC016_validate_board_response_time(get_token):
 @pytest.mark.functional_negative
 @pytest.mark.regression
 @pytest.mark.equivalence_partition
-def test_TC017_get_board_with_nonexistent_board_id(get_token):
-    TOKEN_PLANKA = get_token
-    url = EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD_NOT_EXISTS.value
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.get(url,headers)
-    log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_404(response)
+@pytest.mark.parametrize(
+    "url_id_board , expected_status", [
+        pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD_NOT_EXISTS.value,404,
+                   id="TC017: get_board_with_nonexistent_board_id"),
 
+        pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD_EMPTY.value,400,
+                   marks=pytest.mark.xfail(reason=" BUG006: La aplicación retorna código 200 y muestra el mensaje : Necesitas habilitar JavaScript para ejecutar esta aplicación "),
+                   id="TC018: get_board_with_empty_board_id"),
 
+        pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD_INVALID.value,400,
+                   id="TC019: get_board_with_invalid_board_id_type")    
+    ])
 
-@pytest.mark.xfail(reason=" BUG004: La aplicación retorna código 200 y muestra el mensaje : Necesitas habilitar JavaScript para ejecutar esta aplicación ",run=True)
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC018_get_board_with_empty_board_id(get_token):
-    TOKEN_PLANKA = get_token
-    url = EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD_EMPTY.value
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.get(url,headers)
-    log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_400(response)
-
-
-
-@pytest.mark.board
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC019_get_board_with_invalid_board_id_type(get_token):
-    TOKEN_PLANKA = get_token
-    url = EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD_INVALID.value
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.get(url,headers)
-    log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_400(response)
+def test_get_board_with_board_id(get_token,url_id_board,expected_status):
+     url = url_id_board
+     headers = {'Authorization': f'Bearer {get_token}'}
+     response = PlankaRequests.get(url,headers)
+     log_request_response(url, response, headers)
+     if expected_status==404:
+        AssertionStatusCode.assert_status_code_404(response)
+     else:
+        AssertionStatusCode.assert_status_code_400(response)
+     

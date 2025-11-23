@@ -9,49 +9,34 @@ from utils.logger_helper import log_request_response
 from src.routes.request import PlankaRequests
 
 
-
-# Se define con mark el modulo a evaluar
 @pytest.mark.project_management
-
-# Se define el tipo de prueba 
 @pytest.mark.smoke
 @pytest.mark.functional_positive
-@pytest.mark.headers_validation
-
-# Titulo del Caso de Prueba
-def test_TC001_create_project_with_valid_token(setup_add_project):
-
-    # Ambiente
-    get_token , created_projects = setup_add_project
-    url = EndpointPlanka.BASE_PROJECTS.value
-    headers = {'Authorization': f'Bearer {get_token}'}
-
-    # Pasos 
-    
-    # 1. Ejecucion del Flujo  de pruebas
-    response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE)
-
-    # Registro de Ejecucion
-    log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE)
-
-    # 2. Se verifica el resultado actual con el resultado obtenido
-    AssertionStatusCode.assert_status_code_200(response)
-
-    # Se aplica Teardown : Limpieza del entorno de prueba
-    created_projects.append(response.json())
-
-  
-
-@pytest.mark.project_management
 @pytest.mark.functional_negative
 @pytest.mark.headers_validation
-def test_TC002_create_project_with_invalid_token():
+@pytest.mark.parametrize(
+    "use_fixture,token_value,expected_status",
+    [(True,None,200),
+     (False,TOKEN_INVALID,401)
+    ],
+    ids=[
+        "TC001: create_project_with_valid_token",
+        "TC002: create_project_with_invalid_token"
+    ])
+
+def test_create_project_with_token(setup_add_project,use_fixture,token_value,expected_status):
+    get_token, created_projects = (setup_add_project if use_fixture else (token_value, []))
+
     url = EndpointPlanka.BASE_PROJECTS.value
-    headers = {'Authorization': f'Bearer {TOKEN_INVALID}'}
+    headers = {'Authorization': f'Bearer {get_token}'}
     response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE)
     log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE)
-    AssertionStatusCode.assert_status_code_401(response)
 
+    if expected_status == 200:
+        AssertionStatusCode.assert_status_code_200(response)
+        created_projects.append(response.json())
+    else:
+      AssertionStatusCode.assert_status_code_401(response)
 
 
 
@@ -91,99 +76,65 @@ def test_TC004_validate_project_creation_request_payload(setup_add_project):
 
 @pytest.mark.project_management
 @pytest.mark.functional_positive
+@pytest.mark.functional_negative
 @pytest.mark.regression
 @pytest.mark.payload_validation
 @pytest.mark.equivalence_partition
-def test_TC005_create_project_with_attribute_type_private(setup_add_project):
+@pytest.mark.parametrize(
+    "payload , expected_status", [
+        (PAYLOAD_PROJECT_CREATE, 200),
+        (PAYLOAD_PROJECT_CREATE_TYPE_SHARED, 200),
+        (PAYLOAD_PROJECT_CREATE_TYPE_EMPTY, 400),
+        (PAYLOAD_PROJECT_CREATE_TYPE_INVALID, 400)
+    ],
+
+    ids=[
+        "TC005 : create_project_with_type_private",
+        "TC006 : create_project_with_type_shared",
+        "TC007 : create_project_with_type_empty",
+        "TC008 : create_project_with_type_invalid",
+    ])
+
+def test_create_project_with_attribute_type_parametrizer(setup_add_project,payload,expected_status):
     get_token , created_projects = setup_add_project
     url = EndpointPlanka.BASE_PROJECTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE)
-    log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE)
-    AssertionStatusCode.assert_status_code_200(response)
-    created_projects.append(response.json())
+    headers = {'Authorization': f'Bearer {get_token}'}
 
+    response = PlankaRequests.post(url,headers,payload)
+    log_request_response(url, response, headers, payload)
 
-
-@pytest.mark.project_management
-@pytest.mark.functional_positive
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC006_create_project_with_attribute_type_shared(setup_add_project):
-    get_token , created_projects = setup_add_project
-    url = EndpointPlanka.BASE_PROJECTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE_TYPE_SHARED)
-    log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE_TYPE_SHARED)
-    AssertionStatusCode.assert_status_code_200(response)
-    created_projects.append(response.json())
-  
-
-
-@pytest.mark.project_management
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC007_create_project_with_attribute_type_empty(get_token):
-    url = EndpointPlanka.BASE_PROJECTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE_TYPE_EMPTY)
-    log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE_TYPE_EMPTY)
-    AssertionStatusCode.assert_status_code_400(response)
-
-
-
-@pytest.mark.project_management
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC008_create_project_with_attribute_type_invalid(get_token):
-    url = EndpointPlanka.BASE_PROJECTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE_TYPE_INVALID)
-    log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE_TYPE_INVALID)
-    AssertionStatusCode.assert_status_code_400(response)
-
-
-
-@pytest.mark.project_management
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC009_create_project_with_attribute_name_empty(get_token):
-    url = EndpointPlanka.BASE_PROJECTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE_NAME_EMPTY)
-    log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE_NAME_EMPTY)
-    AssertionStatusCode.assert_status_code_400(response)
-
-
-
-@pytest.mark.xfail(reason=" BUG013: El campo nombre del proyecto permite entradas numéricas ",run=True)
-@pytest.mark.project_management
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC010_create_project_with_attribute_name_value_number(setup_add_project):
-    get_token , created_projects = setup_add_project
-    url = EndpointPlanka.BASE_PROJECTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE_NAME_NUMBER)
-    log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE_NAME_NUMBER)
-    AssertionStatusCode.assert_status_code_400(response)
-    created_projects.append(response.json())
-
+    if expected_status == 200:
+        AssertionStatusCode.assert_status_code_200(response)
+        created_projects.append(response.json())
+    else:
+      AssertionStatusCode.assert_status_code_400(response)
     
 
+
+@pytest.mark.project_management
+@pytest.mark.functional_negative
+@pytest.mark.regression
+@pytest.mark.payload_validation
+@pytest.mark.equivalence_partition
+@pytest.mark.parametrize(
+    "payload,expected_status",
+    [
+      pytest.param(PAYLOAD_PROJECT_CREATE_NAME_EMPTY,400,
+                   id="TC009: create_project_with_attribute_name_empty"),
+
+      pytest.param(PAYLOAD_PROJECT_CREATE_NAME_NUMBER,400,
+                  marks=pytest.mark.xfail(reason="BUG020: El campo name del proyecto permite entradas numéricas"),
+                  id="TC010: create_project_with_attribute_name_value_number"
+        )
+    ])
+
+def test_create_project_with_attribute_name_parametrizer(get_token,payload,expected_status):
+   url = EndpointPlanka.BASE_PROJECTS.value
+   headers = {'Authorization': f'Bearer {get_token}'}
+   response = PlankaRequests.post(url,headers,payload)
+   log_request_response(url, response, headers, payload)
+   
+   if expected_status==400:
+      AssertionStatusCode.assert_status_code_400(response)
+   
 

@@ -1,4 +1,5 @@
 
+
 import pytest
 from utils.constans import TOKEN_INVALID
 from src.routes.endpoint import EndpointPlanka
@@ -14,27 +15,31 @@ from src.routes.request import PlankaRequests
 @pytest.mark.project_management
 @pytest.mark.smoke
 @pytest.mark.functional_positive
-@pytest.mark.headers_validation
-def test_TC011_get_project_with_valid_token(get_token):
-    url = EndpointPlanka.BASE_PROJECTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.get(url,headers)
-    log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_200(response)
-
-
-
-@pytest.mark.project_management
 @pytest.mark.functional_negative
 @pytest.mark.headers_validation
-def test_TC012_get_project_with_invalid_token():
-    url = EndpointPlanka.BASE_PROJECTS.value
-    headers = {'Authorization': f'Bearer {TOKEN_INVALID}'}
-    response = PlankaRequests.get(url,headers)
-    log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_401(response)
+@pytest.mark.parametrize(
+     "use_fixture,token_value,expected_status",
+     [(True,None,200),
+      (False,TOKEN_INVALID,401)
+     ],
+     ids=[
+          "TC011: get_project_with_valid_token",
+          "TC012: get_project_with_invalid_token"
+     ])
 
+def test_get_project_with_token(get_token,use_fixture,token_value,expected_status):
+   TOKEN_PLANKA =get_token if use_fixture else token_value
+
+   url = EndpointPlanka.BASE_PROJECTS.value
+   headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
+   response = PlankaRequests.get(url,headers)
+   log_request_response(url, response, headers)
+
+   if expected_status == 200:
+      AssertionStatusCode.assert_status_code_200(response)
+   else:
+      AssertionStatusCode.assert_status_code_401(response)
+   
 
 
 @pytest.mark.project_management

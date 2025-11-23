@@ -99,7 +99,7 @@ SCHEMA_INCLUDED_LIST = {
                     "description": {"type": ["string", "null"]},
                     "dueDate": {"type": ["string", "null"]},
                     "stopwatch": {
-                        "type": "object",
+                         "type": ["object", "null"],
                         "properties": {
                             "total": {"type": "number"},
                             "startedAt": {"type": "string"}

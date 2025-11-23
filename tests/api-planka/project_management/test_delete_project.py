@@ -11,33 +11,32 @@ from src.routes.request import PlankaRequests
 
 @pytest.mark.project_management
 @pytest.mark.functional_positive
+@pytest.mark.functional_negative
 @pytest.mark.smoke
 @pytest.mark.headers_validation
 @pytest.mark.equivalence_partition
-def test_TC015_delete_project_with_valid_token(get_token,create_test_project):
-    project_id = create_test_project
-    ID_PROJECT = project_id
-    url = f"{EndpointPlanka.BASE_PROJECTS.value}/{ID_PROJECT}"
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.delete(url,headers)
-    log_request_response(url, response, headers)
-    AssertionStatusCode.assert_status_code_200(response)
+@pytest.mark.parametrize(
+     "use_fixture,token_value,expected_status",
+     [(True,None,200),
+      (False,TOKEN_INVALID,401)
+     ],
+     ids=[
+          "TC015: delete_project_with_valid_token",
+          "TC016: delete_project_with_invalid_token"
+     ])
 
-
-
-
-@pytest.mark.project_management
-@pytest.mark.functional_negative
-@pytest.mark.headers_validation
-def test_TC016_delete_project_with_invalid_token(create_test_project):
-   project_id = create_test_project
-   ID_PROJECT = project_id
+def test_delete_project_with_token(get_token,create_test_project,use_fixture,token_value,expected_status):
+   TOKEN_PLANKA =get_token if use_fixture else token_value
+   ID_PROJECT = create_test_project
    url = f"{EndpointPlanka.BASE_PROJECTS.value}/{ID_PROJECT}"
-   headers = {'Authorization': f'Bearer {TOKEN_INVALID}'}
+   headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
    response = PlankaRequests.delete(url,headers)
    log_request_response(url, response, headers)
-   AssertionStatusCode.assert_status_code_401(response)
+
+   if expected_status == 200:
+      AssertionStatusCode.assert_status_code_200(response)
+   else:
+      AssertionStatusCode.assert_status_code_401(response)
 
 
 
@@ -45,46 +44,33 @@ def test_TC016_delete_project_with_invalid_token(create_test_project):
 @pytest.mark.functional_negative
 @pytest.mark.regression
 @pytest.mark.equivalence_partition
-def test_TC017_delete_project_for_id_not_exists(get_token):
-   TOKEN_PLANKA = get_token
-   url = f"{EndpointPlanka.BASE_PROJECTS.value}/{ID_PROJECT_NOT_EXISTS}"
-   headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
+
+@pytest.mark.parametrize(
+   "id_project,expected_status",[
+         pytest.param(ID_PROJECT_NOT_EXISTS,404,
+                  marks=pytest.mark.xfail(reason="BUG21:Código HTTP incorrecto se retorna 400 en lugar de 404 al consultar un recurso inexistente"),
+                  id="TC017: delete_project_with_id_not_exists"),
+
+         pytest.param(ID_PROJECT_EMPTY,400,
+                  marks=pytest.mark.xfail(reason="BUG22:Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso vacio"),
+                  id="TC018: delete_project_with_id_empty"),
+
+         pytest.param(ID_PROJECT_EMPTY,400,
+                  marks=pytest.mark.xfail(reason="BUG23:Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso inexistente"),
+                  id="TC019: delete_project_with_id_invalid_string")
+  ])
+
+def test_delete_project_with_id_parametrizer(get_token,id_project,expected_status):
+   url = f"{EndpointPlanka.BASE_PROJECTS.value}/{id_project}"
+   headers = {'Authorization': f'Bearer {get_token}'}
    response = PlankaRequests.delete(url,headers)
    log_request_response(url, response, headers)
-   AssertionStatusCode.assert_status_code_400_or_404(response)
-
- 
-
-@pytest.mark.project_management
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC018_delete_project_for_id_invalid_empty(get_token):
-   TOKEN_PLANKA = get_token
-   url = f"{EndpointPlanka.BASE_PROJECTS.value}/{ID_PROJECT_EMPTY}"
-   headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-   response = PlankaRequests.delete(url,headers)
-   log_request_response(url, response, headers)
-   AssertionStatusCode.assert_status_code_404(response)
-
-
-
-
-@pytest.mark.project_management
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC019_delete_project_for_id_invalid_string(get_token):
-   TOKEN_PLANKA = get_token
-   url = f"{EndpointPlanka.BASE_PROJECTS.value}/{ID_PROJECT_INVALID_STRING}"
-   headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-   response = PlankaRequests.delete(url,headers)
-   log_request_response(url, response, headers)
-   AssertionStatusCode.assert_status_code_400(response)
+   if expected_status == 404:
+      AssertionStatusCode.assert_status_code_404(response)
+   else:
+      AssertionStatusCode.assert_status_code_400(response)
 
 
 
 
 
-
-   

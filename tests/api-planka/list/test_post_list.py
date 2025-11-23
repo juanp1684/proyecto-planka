@@ -10,67 +10,72 @@ from src.assertions.schema_assertion import AssertionSchemas
 from src.routes.request import PlankaRequests
 
 
-
-
 @pytest.mark.list
 @pytest.mark.smoke
 @pytest.mark.functional_positive
-@pytest.mark.headers_validation
-def test_TC001_create_list_with_valid_token(setup_add_list):
-    get_token,created_lists = setup_add_list
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST)
-    log_request_response(url, response, headers,PAYLOAD_CREATE_LIST)
-    AssertionStatusCode.assert_status_code_200(response)
-    created_lists.append(response.json())
-
-
-@pytest.mark.list
 @pytest.mark.functional_negative
 @pytest.mark.headers_validation
-def test_TC002_create_list_with_invalid_token():
+@pytest.mark.parametrize(
+    "use_fixture,token_value,expected_status",
+    [(True,None,200),
+     (False,TOKEN_INVALID,401)
+    ],
+    ids=[
+        "TC001: create_list_with_valid_token",
+        "TC002: create_list_with_invalid_token"
+    ])
+
+def test_create_list_with_token(setup_add_list,use_fixture,token_value,expected_status):
+    get_token, created_lists = (setup_add_list if use_fixture else (token_value, []))
+
     url = EndpointPlanka.BASE_LISTS.value
-    headers = {'Authorization': f'Bearer {TOKEN_INVALID}'}
+    headers = {'Authorization': f'Bearer {get_token}'}
     response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST)
     log_request_response(url, response, headers, PAYLOAD_CREATE_LIST)
-    AssertionStatusCode.assert_status_code_401(response)
+
+    if expected_status == 200:
+        AssertionStatusCode.assert_status_code_200(response)
+        created_lists.append(response.json())
+    else:
+      AssertionStatusCode.assert_status_code_401(response)
+
 
 
 
 @pytest.mark.list
 @pytest.mark.functional_positive
+@pytest.mark.functional_negative
 @pytest.mark.regression
 @pytest.mark.payload_validation
 @pytest.mark.equivalence_partition
-def test_TC003_post_list_with_attribute_type_active(setup_add_list):
-    get_token,created_lists = setup_add_list
+@pytest.mark.parametrize(
+    "payload , expected_status", [
+        (PAYLOAD_CREATE_LIST_TYPE_ACTIVE, 200),
+        (PAYLOAD_CREATE_LIST_TYPE_CLOSED, 200),
+        (PAYLOAD_CREATE_LIST_EMPTY_TYPE, 400),
+        (PAYLOAD_CREATE_LIST_INVALID_TYPE, 400)
+    ],
+
+    ids=[
+        "TC003 : create_list_with_type_active",
+        "TC004 : create_list_with_type_closed",
+        "TC005 : create_list_with_type_empty",
+        "TC006 : create_list_with_type_invalid",
+    ])
+
+def test_create_list_with_attribute_type_parametrizer(setup_add_list,payload,expected_status):
+    get_token, created_lists = setup_add_list
     url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_TYPE_ACTIVE)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_TYPE_ACTIVE)
-    AssertionStatusCode.assert_status_code_200(response)
-    created_lists.append(response.json())
+    headers = {'Authorization': f'Bearer {get_token}'}
 
-
-
-@pytest.mark.list
-@pytest.mark.functional_positive
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC004_post_list_with_attribute_type_closed(setup_add_list):
-    get_token,created_lists = setup_add_list
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_TYPE_CLOSED)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_TYPE_CLOSED)
-    AssertionStatusCode.assert_status_code_200(response)
-    created_lists.append(response.json())
-
+    response = PlankaRequests.post(url,headers,payload)
+    log_request_response(url, response, headers, payload)
+    if expected_status == 200:
+        AssertionStatusCode.assert_status_code_200(response)
+        created_lists.append(response.json())
+    else:
+      AssertionStatusCode.assert_status_code_400(response)
+    
 
 
 
@@ -79,13 +84,34 @@ def test_TC004_post_list_with_attribute_type_closed(setup_add_list):
 @pytest.mark.regression
 @pytest.mark.payload_validation
 @pytest.mark.equivalence_partition
-def test_TC005_post_list_attribute_with_type_empty(get_token):
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_EMPTY_TYPE)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_EMPTY_TYPE)
-    AssertionStatusCode.assert_status_code_400(response)
+@pytest.mark.parametrize(
+    "payload,expected_status",
+    [
+        pytest.param(PAYLOAD_CREATE_LIST_EMPTY_POSITION,400,
+                   id="TC007: create_list_with_attribute_position_empty"),
+
+        pytest.param(PAYLOAD_CREATE_LIST_INVALID_POSITION,400,
+                  marks=pytest.mark.xfail(reason="BUG014: El atributo position  permite entradas de cadena"),
+                  id="TC008: create_list_with_attribute_position_invalid"),
+
+
+        pytest.param(PAYLOAD_CREATE_LIST_POSITION_VALUE_NEGATIVE,400,
+                  id="TC009: create_list_with_attribute_position_value_negative"),
+
+        pytest.param(PAYLOAD_CREATE_LIST_POSITION_VALUE_EXCEEDS,400,
+                 marks=pytest.mark.xfail(reason="BUG015: El campo position permite ingresar numeros sin limite de digitos "),
+                  id="TC010: create_list_with_attribute_position_value_exceeding")
+
+ ])
+
+def test_create_list_with_attribute_position_parametrizer(get_token,payload,expected_status):
+   url = EndpointPlanka.BASE_LISTS.value
+   headers = {'Authorization': f'Bearer {get_token}'}
+   response = PlankaRequests.post(url,headers,payload)
+   log_request_response(url, response, headers, payload)
+   
+   if expected_status==400:
+      AssertionStatusCode.assert_status_code_400(response)
 
 
 
@@ -94,117 +120,24 @@ def test_TC005_post_list_attribute_with_type_empty(get_token):
 @pytest.mark.regression
 @pytest.mark.payload_validation
 @pytest.mark.equivalence_partition
-def test_TC006_post_list_attribute_with_type_invalid(get_token):
+@pytest.mark.parametrize(
+        "payload,expected_status",
+        [
+            pytest.param(PAYLOAD_CREATE_LIST_EMPTY_NAME,400,
+                    id="TC011: create_list_with_attribute_name_empty"),
+
+            pytest.param(PAYLOAD_CREATE_LIST_INVALID_NAME,400,
+                    marks=pytest.mark.xfail(reason="BUG016: El campo name permite ingresar valores numericos",run=True),
+                    id="TC012: create_list_with_attribute_name_invalid")
+        ])
+
+def test_create_list_with_attribute_name_parametrizer(get_token,payload,expected_status):
     url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_INVALID_TYPE)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_INVALID_TYPE)
-    AssertionStatusCode.assert_status_code_400(response)
-
-
-
-
-@pytest.mark.list
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC007_post_list_attribute_with_position_empty(get_token):
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_EMPTY_POSITION)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_EMPTY_POSITION)
-    AssertionStatusCode.assert_status_code_400(response)
- 
-
-
-@pytest.mark.xfail(reason=" BUG009: La atributo position  permite entradas de cadena ",run=True)
-@pytest.mark.list
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC008_post_list_attribute_with_position_invalid(setup_add_list):
-    get_token,created_lists = setup_add_list
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_INVALID_POSITION)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_INVALID_POSITION)
-    AssertionStatusCode.assert_status_code_400(response)
-    created_lists.append(response.json())
-
-
-
-@pytest.mark.list
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC009_post_list_attribute_position_with_value_negative(get_token):
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_POSITION_VALUE_NEGATIVE)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_POSITION_VALUE_NEGATIVE)
-    AssertionStatusCode.assert_status_code_400(response)
-
-
-
-@pytest.mark.xfail(reason=" BUG010: El campo position permite ingresar numeros sin limite de digitos ",run=True)
-@pytest.mark.list
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC010_post_list_with_position_value_exceeding(setup_add_list):
-    get_token,created_lists = setup_add_list
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_POSITION_VALUE_EXCEEDS)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_POSITION_VALUE_EXCEEDS)
-    AssertionStatusCode.assert_status_code_400(response)
-    created_lists.append(response.json())
-
-
-
-
-
-
-@pytest.mark.list
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC011_post_list_attribute_with_name_empty(get_token):
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_EMPTY_NAME)
-    log_request_response(url, response, headers,PAYLOAD_CREATE_LIST_EMPTY_NAME)
-    AssertionStatusCode.assert_status_code_400(response)
-
-
-
-
-@pytest.mark.xfail(reason=" BUG011: El campo name permite ingresar valores numericos ",run=True)
-@pytest.mark.list
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.payload_validation
-@pytest.mark.equivalence_partition
-def test_TC012_post_list_attribute_with_name_invalid(setup_add_list):
-    get_token,created_lists = setup_add_list
-    url = EndpointPlanka.BASE_LISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST_INVALID_NAME)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST_INVALID_NAME)
-    AssertionStatusCode.assert_status_code_400(response)
-    created_lists.append(response.json())
+    headers = {'Authorization': f'Bearer {get_token}'}
+    response = PlankaRequests.post(url,headers,payload)
+    log_request_response(url, response, headers, payload)
+    if expected_status==400:
+      AssertionStatusCode.assert_status_code_400(response)
 
 
 
@@ -225,8 +158,6 @@ def test_TC013_validate_list_creation_response_schema(setup_add_list):
 
    
 
-
-
 @pytest.mark.list
 @pytest.mark.functional_positive
 @pytest.mark.regression
@@ -244,45 +175,36 @@ def test_TC014_validate_list_creation_request_payload(setup_add_list):
 
     
 
-
 @pytest.mark.list
 @pytest.mark.functional_negative
 @pytest.mark.regression
 @pytest.mark.equivalence_partition
-def test_TC015_post_list_with_id_board_not_exists(get_token):
-    url = EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_NOT_EXISTS.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST)
-    AssertionStatusCode.assert_status_code_400_or_404(response)
+@pytest.mark.parametrize(
+   "url_id_board,expected_status",[
+      pytest.param(EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_NOT_EXISTS.value,404,
+                   id="TC015: create_list_with_id_board_not_exists"),
+
+      pytest.param(EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_EMPTY.value,400,
+                   marks=pytest.mark.xfail(reason="BUG017: Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso vacio"),
+                   id="TC016: create_list_with_id_board_empty"),
+      
+      pytest.param(EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_INVALID.value,400,
+                   id="TC017: create_list_with_id_board_invalid_type")
+
+   ])
 
 
 
 
-@pytest.mark.list
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC016_post_list_with_id_board_empty(get_token):
-    url = EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_EMPTY.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST)
-    AssertionStatusCode.assert_status_code_404(response)
+def test_create_list_with_id_board_parametrizer(get_token,url_id_board,expected_status):
+   url = url_id_board
+   headers = {'Authorization': f'Bearer {get_token}'}
+   response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST)
+   log_request_response(url, response, headers, PAYLOAD_CREATE_LIST)
+   if expected_status==404:
+      AssertionStatusCode.assert_status_code_404(response)
+   else:
+      AssertionStatusCode.assert_status_code_400(response)
 
-
-
-@pytest.mark.list
-@pytest.mark.functional_negative
-@pytest.mark.regression
-@pytest.mark.equivalence_partition
-def test_TC017_post_list_with_id_board_invalid(get_token):
-    url = EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_INVALID.value
-    TOKEN_PLANKA = get_token
-    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_CREATE_LIST)
-    log_request_response(url, response, headers, PAYLOAD_CREATE_LIST)
-    AssertionStatusCode.assert_status_code_400(response)
-    
+   
+  

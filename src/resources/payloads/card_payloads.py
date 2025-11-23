@@ -36,8 +36,6 @@ PAYLOAD_CREATE_CARD_TYPE_INVALID = {
 }
 
 
-
-
 PAYLOAD_CREATE_CARD_POSITION_EMPTY = {
   "type": "project",
   "position": "",

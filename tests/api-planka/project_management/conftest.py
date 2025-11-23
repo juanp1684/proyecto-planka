@@ -38,7 +38,11 @@ def setup_add_project(get_token):
               else:
                    logger.error(f" No se pudo eliminar el proyecto {project_id}. ")
         except Exception as e:
-          logger.exception(f"Error eliminando proyecto: {e}")           
+          logger.exception(f"Error eliminando proyecto: {e}")     
+
+
+
+
     
 
     
