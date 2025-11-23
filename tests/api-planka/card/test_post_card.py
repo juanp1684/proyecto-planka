@@ -147,9 +147,11 @@ def test_post_card_validate_attribute_with_name(get_token,payload,expected_statu
     headers = {'Authorization': f'Bearer {get_token}'}
     response = PlankaRequests.post(url,headers,payload)
     log_request_response(url, response, headers, payload)
-    if expected_status ==400:
+    if expected_status==400:
         AssertionStatusCode.assert_status_code_400(response)
     
+    
+
 
 
 @pytest.mark.card

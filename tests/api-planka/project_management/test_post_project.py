@@ -123,7 +123,7 @@ def test_create_project_with_attribute_type_parametrizer(setup_add_project,paylo
                    id="TC009: create_project_with_attribute_name_empty"),
 
       pytest.param(PAYLOAD_PROJECT_CREATE_NAME_NUMBER,400,
-                  marks=pytest.mark.xfail(reason="BUG020: El campo name del proyecto permite entradas numéricas"),
+                  marks=pytest.mark.xfail(reason="BUG020: El campo name del proyecto permite entradas numéricas",run=True),
                   id="TC010: create_project_with_attribute_name_value_number"
         )
     ])
@@ -133,8 +133,9 @@ def test_create_project_with_attribute_name_parametrizer(get_token,payload,expec
    headers = {'Authorization': f'Bearer {get_token}'}
    response = PlankaRequests.post(url,headers,payload)
    log_request_response(url, response, headers, payload)
-   
    if expected_status==400:
       AssertionStatusCode.assert_status_code_400(response)
+   
+   
    
 

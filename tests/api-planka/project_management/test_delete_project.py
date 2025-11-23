@@ -73,4 +73,3 @@ def test_delete_project_with_id_parametrizer(get_token,id_project,expected_statu
 
 
 
-

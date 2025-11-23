@@ -18,22 +18,22 @@ PAYLOAD_PROJECT_CREATE_NAME_NUMBER = {
 
 PAYLOAD_PROJECT_CREATE_TYPE_EMPTY = {
     "type": "",
-    "name": "Proyecto Nuevo",
+    "name": "Proyecto Nuevo en tipo vacio",
 }
 
 PAYLOAD_PROJECT_CREATE_TYPE_SHARED = {
     "type": "shared",
-    "name": "Mi Proyecto"
+    "name": "Mi Proyecto en tipo shared"
 }
 
 
 PAYLOAD_PROJECT_CREATE_TYPE_PRIVATE = {
     "type": "private",
-    "name": "Mi Proyecto"
+    "name": "Mi Proyecto en tipo private"
 }
 
 PAYLOAD_PROJECT_CREATE_TYPE_INVALID = {
-    "type": "asd",
+    "type": "tipo invalido",
     "name": "Mi Proyecto"
 }
 

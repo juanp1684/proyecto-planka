@@ -20,7 +20,7 @@ def create_test_project(get_token):
       
 
   
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def setup_add_project(get_token):
     created_projects = []
     logger.info("Setup iniciado para creación de proyectos")
