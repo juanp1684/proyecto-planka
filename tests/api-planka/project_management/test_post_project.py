@@ -31,7 +31,6 @@ def test_create_project_with_token(setup_add_project,use_fixture,token_value,exp
     headers = {'Authorization': f'Bearer {get_token}'}
     response = PlankaRequests.post(url,headers,PAYLOAD_PROJECT_CREATE)
     log_request_response(url, response, headers, PAYLOAD_PROJECT_CREATE)
-
     if expected_status == 200:
         AssertionStatusCode.assert_status_code_200(response)
         created_projects.append(response.json())
