@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout repository
+       # Hacer checkout de la rama daniela
+      - name: Checkout code from daniela
         uses: actions/checkout@v4
+        with:
+          ref: daniela  # <- Aquí se indica la rama que quieres usar
 
 
       - name: Set up Python
