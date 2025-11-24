@@ -2,7 +2,8 @@ name: CI Pruebas REST PLANKA
 
 on:
   push:
-    branches: [ daniela ]
+    branches: 
+    - main 
   workflow_dispatch:
 
 jobs:
