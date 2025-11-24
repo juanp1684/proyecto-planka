@@ -8,6 +8,10 @@ def generate_token():
     USER_EMAIL = os.getenv("USER_EMAIL")
     USER_PASSWORD = os.getenv("USER_PASSWORD")
 
+    if not BASE_URI or not USER_EMAIL or not USER_PASSWORD:
+        raise RuntimeError("Variables de entorno no definidas")
+
+
     url = f"{BASE_URI}/access-tokens"
     payload = {
             "emailOrUsername": USER_EMAIL,
