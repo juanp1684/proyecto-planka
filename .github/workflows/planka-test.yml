@@ -42,7 +42,7 @@ jobs:
 
       - name: Establecer variables de entorno desde secrets
         run: |
-          echo "BASE_URI=http://localhost:3000/api" >> $GITHUB_ENV
+          echo "BASE_URI=http://localhost:3000/api/access-tokens" >> $GITHUB_ENV
           echo "USER_EMAIL=${{ secrets.USER_EMAIL  }}" >> $GITHUB_ENV
           echo "USER_PASSWORD=${{ secrets.USER_PASSWORD }}" >> $GITHUB_ENV
             
