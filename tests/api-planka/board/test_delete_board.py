@@ -25,8 +25,8 @@ from src.routes.request import PlankaRequests
 
 def test_delete_board_with_token(get_token,post_test_board,use_fixture,token_value,expected_status):
    TOKEN_PLANKA =get_token if use_fixture else token_value
-   ID_CARD = post_test_board
-   url = f"{EndpointPlanka.BASE_BOARD_MAJOR.value}/{ID_CARD}"
+   ID_BOARD = post_test_board
+   url = f"{EndpointPlanka.BASE_BOARD_MAJOR.value}/{ID_BOARD}"
    headers = {'Authorization': f'Bearer {TOKEN_PLANKA}'}
    response = PlankaRequests.delete(url,headers)
    log_request_response(url, response, headers)

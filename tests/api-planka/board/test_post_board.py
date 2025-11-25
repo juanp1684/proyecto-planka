@@ -112,7 +112,7 @@ def test_post_board_validate_attribute_with_position(get_token,payload,expected_
 @pytest.mark.parametrize(
     "url_id_project , expected_status", [
         pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_NOT_EXISTS.value,404,
-                      marks=pytest.mark.xfail(reason="BUG004: Código HTTP incorrecto se retorna 400 en lugar de 404 al consultar un recurso inexistente"),
+                     marks=pytest.mark.xfail(reason="BUG004: Código HTTP incorrecto se retorna 400 en lugar de 404 al consultar al no existir el recurso"),
                    id="TC009: create_board_with_nonexistent_project_id"),
         
         pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_EMPTY.value,400,
@@ -124,10 +124,10 @@ def test_post_board_validate_attribute_with_position(get_token,payload,expected_
     ])
 
 def test_post_board_with_project_id(get_token,url_id_project,expected_status):
-    url = url_id_project
     headers = {'Authorization': f'Bearer {get_token}'}
-    response = PlankaRequests.post(url,headers,PAYLOAD_BOARD_CREATE)
-    log_request_response(url, response, headers, PAYLOAD_BOARD_CREATE)
+    print(url_id_project)
+    response = PlankaRequests.post(url_id_project,headers,PAYLOAD_BOARD_CREATE)
+    log_request_response(url_id_project, response, headers, PAYLOAD_BOARD_CREATE)
     if expected_status==404:
         AssertionStatusCode.assert_status_code_404(response)
     else:
