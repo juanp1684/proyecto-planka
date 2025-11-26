@@ -59,12 +59,10 @@ jobs:
           pip install allure-pytest
 
 
-
       - name: Ejecutar tests Pytest
         continue-on-error: true
         run: |
             pytest -v tests/ --alluredir=allure-results
-
 
       - name: Generar reporte Allure HTML
         run: |
