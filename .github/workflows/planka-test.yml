@@ -48,17 +48,34 @@ jobs:
 
 
 
+      # - name: Levantar Planka con Docker y esperar
+      #   run: |
+      #    docker compose up -d
+      #    echo "Esperando a que Planka arranque..."
+      #    until curl --silent --fail http://localhost:3000 > /dev/null; do
+      #       echo "esperando..."
+      #       sleep 25
+      #    done
+      #    echo "Planka está en línea"
+
       - name: Levantar Planka con Docker y esperar
         run: |
-         docker compose up -d
-         echo "Esperando a que Planka arranque..."
-         until curl --silent --fail http://localhost:3000/api > /dev/null; do
-            echo "esperando..."
-            sleep 25
-         done
-         echo "Planka está en línea"
+          docker compose up -d
+          echo "Esperando a que Planka arranque..."
+          # Espera hasta que /api esté disponible (timeout 5 min)
+          timeout=300
+          while ! curl --silent --fail http://localhost:3000/api; do
+            echo "Planka no lista, esperando 10s..."
+            sleep 10
+            timeout=$((timeout-10))
+            if [ $timeout -le 0 ]; then
+              echo "ERROR: Planka no arrancó en 5 minutos"
+              docker compose logs planka
+              exit 1
+            fi
+          done
+          echo "Planka está en línea"
 
-      
 
       - name: Instalar dependencias
         run: |
