@@ -34,10 +34,18 @@ jobs:
          echo "USER_EMAIL=${{ secrets.USER_EMAIL }}" >> $GITHUB_ENV
          echo "USER_PASSWORD=${{ secrets.USER_PASSWORD }}" >> $GITHUB_ENV
 
-      - name: Verificar variables...
+      - name: Verificar secrets
         run: |
-          echo "Email: $USER_EMAIL"
-          echo "Password: $USER_PASSWORD"
+          if [ -z "$USER_EMAIL" ]; then
+          echo "USER_EMAIL no está definido"
+          exit 1
+          fi
+          if [ -z "$USER_PASSWORD" ]; then
+              echo "USER_PASSWORD no está definido"
+              exit 1
+          fi
+          echo "Las variables USER_EMAIL y USER_PASSWORD existen."
+
 
 
       - name: Levantar Planka con Docker y esperar
