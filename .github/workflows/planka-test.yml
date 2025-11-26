@@ -11,8 +11,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    
+    services:
+      planka:
+        image: ghcr.io/plankanban/planka:latest
+        ports:
+          - 3000:3000
+        options: >-
+          --health-cmd="curl --fail http://localhost:3000 || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
-       # Hacer checkout de la rama daniela
+
       - name: Checkout code from daniela
         uses: actions/checkout@v4
         with:
@@ -39,9 +51,6 @@ jobs:
           echo "Email: $USER_EMAIL"
           echo "Password: $USER_PASSWORD"
 
-
-      - name: Limpiar Docker Compose crear admin con nuevas credenciales
-        run: docker compose down -v
 
       - name: Levantar Planka con Docker y esperar
         run: |
