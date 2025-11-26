@@ -70,9 +70,9 @@ def generate_token(retries=5, delay=5):
 #     return access_token
 
 
-# if __name__ == "__main__":
-#     token = generate_token()
-#     if token:
-#         print("Token generado:", token)
-#     else:
+if __name__ == "__main__":
+    token = generate_token()
+    if token:
+        print("Token generado:", token)
+    else:
         print("No se pudo generar el token")
