@@ -16,7 +16,6 @@ jobs:
 
       - name: Set up Docker Compose
         run: |
-          docker compose down -v  # Borra contenedores y volúmenes (db-data incluido)
           docker compose up -d
 
       - name: Set environment variables for tests
