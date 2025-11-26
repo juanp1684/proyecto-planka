@@ -83,6 +83,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
 
-
-      - name: Cleanup Docker
-        run: docker compose down -v
