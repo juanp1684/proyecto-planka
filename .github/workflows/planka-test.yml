@@ -28,54 +28,57 @@ jobs:
         with:
             python-version: 3.11
 
-      - name: Establecer variables de entorno desde secrets
+      # - name: Establecer variables de entorno desde secrets
+      #   run: |
+      #    echo "BASE_URI=${{ secrets.BASE_URI }}" >> $GITHUB_ENV
+      #    echo "USER_EMAIL=${{ secrets.USER_EMAIL }}" >> $GITHUB_ENV
+      #    echo "USER_PASSWORD=${{ secrets.USER_PASSWORD }}" >> $GITHUB_ENV
+
+    
+      - name: Levantar Planka con Docker y esperar
         run: |
-         echo "BASE_URI=${{ secrets.BASE_URI }}" >> $GITHUB_ENV
-         echo "USER_EMAIL=${{ secrets.USER_EMAIL }}" >> $GITHUB_ENV
-         echo "USER_PASSWORD=${{ secrets.USER_PASSWORD }}" >> $GITHUB_ENV
+         docker compose up -d
+         echo "Esperando a que Planka arranque..."
+         until curl --silent --fail http://localhost:3000/health  > /dev/null; do
+            echo "esperando..."
+            sleep 25
+         done
+         echo "Planka está en línea"
+
+
+      - name: Crear usuario admin en Planka
+        run: |
+          echo "Creando usuario admin..."
+          curl -X POST http://localhost:3000/api/users \
+               -H "Content-Type: application/json" \
+               -d '{
+                     "email": "${{ secrets.USER_EMAIL }}",
+                     "password": "${{ secrets.USER_PASSWORD }}",
+                     "name": "Admin PLANKA"
+                   }'
+          echo "USER_EMAIL=$EMAIL" >> $GITHUB_ENV
+          echo "USER_PASSWORD=$PASSWORD" >> $GITHUB_ENV
+          echo "BASE_URI=http://localhost:3000" >> $GITHUB_ENV
+          echo "Respuesta creación: $RESPONSE"
+    
+          if echo "$RESPONSE" | grep -q '"id"'; then
+              echo "Usuario creado correctamente"
+          else
+              echo "Error: usuario no se creó"
+              exit 1
+          fi
 
       - name: Verificar secrets
         run: |
           if [ -z "$USER_EMAIL" ]; then
-          echo "USER_EMAIL no está definido"
-          exit 1
+             echo "USER_EMAIL no está definido"
+              exit 1
           fi
           if [ -z "$USER_PASSWORD" ]; then
               echo "USER_PASSWORD no está definido"
               exit 1
           fi
-          echo "Las variables USER_EMAIL y USER_PASSWORD existen."
-
-
-
-      # - name: Levantar Planka con Docker y esperar
-      #   run: |
-      #    docker compose up -d
-      #    echo "Esperando a que Planka arranque..."
-      #    until curl --silent --fail http://localhost:3000 > /dev/null; do
-      #       echo "esperando..."
-      #       sleep 25
-      #    done
-      #    echo "Planka está en línea"
-
-      - name: Levantar Planka con Docker y esperar
-        run: |
-          docker compose up -d
-          echo "Esperando a que Planka arranque..."
-          # Espera hasta que /api esté disponible (timeout 5 min)
-          timeout=300
-          while ! curl --silent --fail http://localhost:3000/api; do
-            echo "Planka no lista, esperando 10s..."
-            sleep 10
-            timeout=$((timeout-10))
-            if [ $timeout -le 0 ]; then
-              echo "ERROR: Planka no arrancó en 5 minutos"
-              docker compose logs planka
-              exit 1
-            fi
-          done
-          echo "Planka está en línea"
-
+              echo "Las variables USER_EMAIL y USER_PASSWORD existen."
 
       - name: Instalar dependencias
         run: |
