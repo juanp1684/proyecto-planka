@@ -44,7 +44,7 @@ PAYLOAD_CREATE_CARD_POSITION_EMPTY = {
 
 PAYLOAD_CREATE_CARD_POSITION_INVALID = {
   "type": "project",
-  "position": "123",
+  "position": "uno",
   "name": "Tercera Tarjeta"
 }
 

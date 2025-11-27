@@ -104,14 +104,13 @@ def test_post_card_validate_attribute_with_type(setup_add_card,payload,expected_
                    id="TC008: create_card_with_attribute_position_empty"),
 
         pytest.param(PAYLOAD_CREATE_CARD_POSITION_INVALID,400,
-                  marks=pytest.mark.xfail(reason="BUG008: El campo position permite ingresar valores de tipo cadena"),
                   id="TC009: create_card_with_attribute_position_invalid"),
 
         pytest.param(PAYLOAD_CREATE_CARD_POSITION_VALUE_NEGATIVE,400,
                   id="TC010: create_card_with_attribute_position_value_negative"),
 
         pytest.param( PAYLOAD_CREATE_CARD_POSITION_DIGITS_EXCEEDS,400,
-                 marks=pytest.mark.xfail(reason="BG009: El campo position permite ingresar numeros sin limite de digitos"),
+                 marks=pytest.mark.xfail(reason="BG008: El campo position permite ingresar numeros sin limite de digitos"),
                  id="TC011: create_card_with_attribute_position_value_exceeding")
     ])
 
@@ -138,7 +137,7 @@ def test_post_card_validate_attribute_with_position(get_token,payload,expected_s
                    id="TC012: create_card_with_attribute_name_empty"),
 
         pytest.param(PAYLOAD_CREATE_CARD_NAME_INVALID,400,
-                  marks=pytest.mark.xfail(reason="BUG010: El campo name permite ingresar valores numericos"),
+                  marks=pytest.mark.xfail(reason="BUG009: El campo name permite ingresar valores numericos"),
                   id="TC013: create_card_with_attribute_name_invalid")
     ])
 
@@ -151,9 +150,6 @@ def test_post_card_validate_attribute_with_name(get_token,payload,expected_statu
         AssertionStatusCode.assert_status_code_400(response)
     
     
-
-
-
 @pytest.mark.card
 @pytest.mark.functional_negative
 @pytest.mark.regression
@@ -164,7 +160,7 @@ def test_post_card_validate_attribute_with_name(get_token,payload,expected_statu
                    id="TC014: create_card_with_nonexistent_list_id"),
         
         pytest.param(EndpointPlanka.BASE_CARD_WITH_ID_LIST_EMPTY.value,400,
-                   marks=pytest.mark.xfail(reason="BUG011: Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso vacio"),
+                   marks=pytest.mark.xfail(reason="BUG010: Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso vacio"),
                    id="TC015: create_card_with_empty_list_id"),
         
         pytest.param(EndpointPlanka.BASE_CARD_WITH_ID_LIST_INVALID.value,400,

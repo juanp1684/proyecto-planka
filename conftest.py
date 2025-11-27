@@ -1,6 +1,5 @@
 import pytest
 from src.routes.request import PlankaRequests
-import os
 from utils.config import BASE_URI, USER_EMAIL, USER_PASSWORD
 
 

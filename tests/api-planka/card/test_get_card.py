@@ -64,7 +64,7 @@ def test_TC019_validate_card_response_time(get_token):
                    id="TC020: get_card_with_nonexistent_card_id"),
 
         pytest.param(EndpointPlanka.BASE_CARDS_WITH_ID_CARD_VALUE_EMPTY.value,400, 
-                   marks=pytest.mark.xfail(reason="BUG012: La aplicación retorna código 200 y muestra el mensaje: Necesitas habilitar JavaScript para ejecutar esta aplicación "),
+                   marks=pytest.mark.xfail(reason="BUG011: La aplicación retorna código 200 y muestra el mensaje: Necesitas habilitar JavaScript para ejecutar esta aplicación "),
                    id="TC021: get_card_with_empty_card_id"),
         
         pytest.param(EndpointPlanka.BASE_CARDS_WITH_ID_CARD_VALUE_INVALID.value,400,

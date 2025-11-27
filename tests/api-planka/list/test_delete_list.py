@@ -47,8 +47,7 @@ def test_delete_list_with_token(get_token,create_test_list,use_fixture,token_val
       pytest.param(ID_LIST_NOT_EXISTS,404,
                    id="TC027: delete_list_with_id_not_exists"),
 
-      pytest.param(ID_LIST_EMPTY,400,
-                   marks=pytest.mark.xfail(reason="BUG019 : Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso vacio"),
+      pytest.param(ID_LIST_EMPTY,404,
                    id="TC028: delete_list_with_id_empty"),
       
       pytest.param(ID_LIST_INVALID_STRING,400,

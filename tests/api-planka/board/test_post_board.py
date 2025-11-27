@@ -84,11 +84,10 @@ def test_post_board_validate_attribute_with_name(get_token,payload,expected_stat
                   id="TC006: create_board_with_attribute_position_negative"),
         
         pytest.param(PAYLOAD_BOARD_POSITION_INVALID_TYPE,400,
-                   marks=pytest.mark.xfail(reason="BUG002: El campo position  permite ingresar valores de tipo cadena"),
                    id="TC007: create_board_with_attribute_position_invalid_type"),
 
         pytest.param(PAYLOAD_BOARD_POSITION_LARGE,400,
-                  marks=pytest.mark.xfail(reason="BUG003: El campo position no tiene un valor limite de cantidad de digitos"),
+                  marks=pytest.mark.xfail(reason="BUG002: El campo position no tiene un valor limite de cantidad de digitos"),
                   id="TC008: create_board_with_attribute_position_large")
 
     ])
@@ -112,11 +111,10 @@ def test_post_board_validate_attribute_with_position(get_token,payload,expected_
 @pytest.mark.parametrize(
     "url_id_project , expected_status", [
         pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_NOT_EXISTS.value,404,
-                     marks=pytest.mark.xfail(reason="BUG004: Código HTTP incorrecto se retorna 400 en lugar de 404 al consultar al no existir el recurso"),
+                     marks=pytest.mark.xfail(reason="BUG003: Código HTTP incorrecto se retorna 400 en lugar de 404 al consultar al no existir el recurso"),
                    id="TC009: create_board_with_nonexistent_project_id"),
         
-        pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_EMPTY.value,400,
-                   marks=pytest.mark.xfail(reason="BUG005: Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso vacio"),
+        pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_EMPTY.value,404,
                    id="TC010: create_board_with_empty_project_id"),
         
         pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_PROJECT_INVALID.value,400,

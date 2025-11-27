@@ -51,7 +51,7 @@ def test_delete_card_with_token(get_token,post_card,use_fixture,token_value,expe
                    id="TC025: delete_card_with_nonexistent_id"),
         
         pytest.param(ID_CARD_EMPTY,400,
-                   marks=pytest.mark.xfail(reason="BUG013: BUG004: Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso inexistente"),
+                   marks=pytest.mark.xfail(reason="BUG013: Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso inexistente"),
                    id="TC026: delete_card_with_empty_id"),
         
         pytest.param(ID_CARD_INVALID_STRING,400,

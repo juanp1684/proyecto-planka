@@ -80,7 +80,7 @@ def test_TC016_validate_board_response_time(get_token):
                    id="TC017: get_board_with_nonexistent_board_id"),
 
         pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD_EMPTY.value,400,
-                   marks=pytest.mark.xfail(reason=" BUG006: La aplicación retorna código 200 y muestra el mensaje : Necesitas habilitar JavaScript para ejecutar esta aplicación "),
+                   marks=pytest.mark.xfail(reason=" BUG005: La aplicación retorna código 200 y muestra el mensaje : Necesitas habilitar JavaScript para ejecutar esta aplicación "),
                    id="TC018: get_board_with_empty_board_id"),
 
         pytest.param(EndpointPlanka.BASE_BOARDS_WITH_ID_BOARD_INVALID.value,400,

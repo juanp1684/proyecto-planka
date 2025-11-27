@@ -24,7 +24,7 @@ PAYLOAD_BOARD_POSITION_NEGATIVE={
 }
 
 PAYLOAD_BOARD_POSITION_INVALID_TYPE={
-    "position": "123",
+    "position": "dos",
     "name": "Proyecto Oficial"
 }
 

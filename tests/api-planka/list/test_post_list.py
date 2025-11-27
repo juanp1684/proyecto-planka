@@ -91,7 +91,6 @@ def test_create_list_with_attribute_type_parametrizer(setup_add_list,payload,exp
                    id="TC007: create_list_with_attribute_position_empty"),
 
         pytest.param(PAYLOAD_CREATE_LIST_INVALID_POSITION,400,
-                  marks=pytest.mark.xfail(reason="BUG014: El atributo position  permite entradas de cadena"),
                   id="TC008: create_list_with_attribute_position_invalid"),
 
 
@@ -184,17 +183,13 @@ def test_TC014_validate_list_creation_request_payload(setup_add_list):
       pytest.param(EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_NOT_EXISTS.value,404,
                    id="TC015: create_list_with_id_board_not_exists"),
 
-      pytest.param(EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_EMPTY.value,400,
-                   marks=pytest.mark.xfail(reason="BUG017: Código HTTP incorrecto se retorna 404 en lugar de 400 al consultar un recurso vacio"),
+      pytest.param(EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_EMPTY.value,404,
                    id="TC016: create_list_with_id_board_empty"),
       
       pytest.param(EndpointPlanka.BASE_LISTS_WITH_ID_BOARD_INVALID.value,400,
                    id="TC017: create_list_with_id_board_invalid_type")
 
    ])
-
-
-
 
 def test_create_list_with_id_board_parametrizer(get_token,url_id_board,expected_status):
    url = url_id_board

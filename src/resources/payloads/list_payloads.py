@@ -39,7 +39,7 @@ PAYLOAD_CREATE_LIST_EMPTY_POSITION = {
 
 PAYLOAD_CREATE_LIST_INVALID_POSITION = {
     "type": "active",
-    "position": "123",
+    "position": "cuatro",
     "name": "En progreso"
 }
 
