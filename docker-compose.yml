@@ -2,117 +2,23 @@ services:
   planka:
     image: ghcr.io/plankanban/planka:2.0.0-rc.4
     restart: on-failure
+    ports:
+      - "3000:1337"
     volumes:
       - favicons:/app/public/favicons
       - user-avatars:/app/public/user-avatars
       - background-images:/app/public/background-images
       - attachments:/app/private/attachments
-    # Optionally override this to your user/group
-    # user: 1000:1000
-    # tmpfs:
-    #   - /app/.tmp:mode=770,uid=1000,gid=1000
-    ports:
-      - 3000:1337
     environment:
       - BASE_URL=http://localhost:3000
       - DATABASE_URL=postgresql://postgres@postgres/planka
+      - SECRET_KEY=45708907e1b89a6c98b49f5b35d4f8285e719544e949a9511f104f5b185733fe65ba97cc17a2c894e0de8fd2c33479b69f55744061ca253c1f4cb2a14261e8e6
 
-      # Optionally store the database password in secrets:
-      # - DATABASE_URL=postgresql://postgres:$${DATABASE_PASSWORD}@postgres/planka
-      # - DATABASE_PASSWORD__FILE=/run/secrets/database_password
-      # And add the following to the service:
-      # secrets:
-      #   - database_password
+      # Admin inicial
+      - DEFAULT_ADMIN_EMAIL=${USER_EMAIL}        # email del admin CI
+      - DEFAULT_ADMIN_PASSWORD=${USER_PASSWORD} # password del admin CI
+      - DEFAULT_ADMIN_USERNAME=Daniela Tester   # nombre del admin
 
-      - SECRET_KEY=45708907e1b89a6c98b49f5b35d4f8285e719544e949a9511f104f5b185733fe65ba97cc17a2c894e0de8fd2c33479b69f55744061ca253c1f4cb2a14261e8e6 
-      # Optionally store in secrets - then SECRET_KEY should not be set
-      # - SECRET_KEY__FILE=/run/secrets/secret_key
-
-      # - LOG_LEVEL=warn
-
-      # - TRUST_PROXY=true
-      # - MAX_UPLOAD_FILE_SIZE=
-      # - TOKEN_EXPIRES_IN=365 # In days
-
-      # related: https://github.com/knex/knex/issues/2354
-      # As knex does not pass query parameters from the connection string,
-      # we have to use environment variables in order to pass the desired values, e.g.
-      # - PGSSLMODE=<value>
-
-      # Configure knex to accept SSL certificates
-      # - KNEX_REJECT_UNAUTHORIZED_SSL_CERTIFICATE=false
-
-      # Used for per-board notifications
-      # - DEFAULT_LANGUAGE=en-US
-
-      # Do not comment out DEFAULT_ADMIN_EMAIL if you want to prevent this user from being edited/deleted
-      - DEFAULT_ADMIN_EMAIL=${USER_EMAIL}
-      - DEFAULT_ADMIN_PASSWORD=${USER_PASSWORD}
-      - DEFAULT_ADMIN_USERNAME=Daniela Tester
-      # - PLANKA_ADMIN_EMAIL: ${{ secrets.USER_EMAIL }}
-      # - PLANKA_ADMIN_PASSWORD: ${{ secrets.USER_PASSWORD }}  ### se aumento
-      # - PLANKA_ADMIN_NAME: "Admin PLANKA"
-
-
-
-      # Optionally store in secrets - then DEFAULT_ADMIN_PASSWORD should not be set
-      # - DEFAULT_ADMIN_PASSWORD__FILE=/run/secrets/default_admin_password
-      # - DEFAULT_ADMIN_NAME=Demo Demo
-      # - INTERNAL_ACCESS_TOKEN=
-      # - STORAGE_LIMIT=
-      # - ACTIVE_USERS_LIMIT=
-
-      # Set to true to show more detailed authentication error messages.
-      # It should not be enabled without a rate limiter for security reasons.
-      # - SHOW_DETAILED_AUTH_ERRORS=false
-
-      # - S3_ENDPOINT=
-      # - S3_REGION=
-      # - S3_ACCESS_KEY_ID=
-      # - S3_SECRET_ACCESS_KEY=
-      # Optionally store in secrets - then S3_SECRET_ACCESS_KEY should not be set
-      # - S3_SECRET_ACCESS_KEY__FILE=/run/secrets/s3_secret_access_key
-      # - S3_BUCKET=
-      # - S3_FORCE_PATH_STYLE=true
-
-      # - OIDC_ISSUER=
-      # - OIDC_CLIENT_ID=
-      # - OIDC_CLIENT_SECRET=
-      # Optionally store in secrets - then OIDC_CLIENT_SECRET should not be set
-      # - OIDC_CLIENT_SECRET__FILE=/run/secrets/oidc_client_secret
-      # - OIDC_USE_OAUTH_CALLBACK=true
-      # - OIDC_ID_TOKEN_SIGNED_RESPONSE_ALG=
-      # - OIDC_USERINFO_SIGNED_RESPONSE_ALG=
-      # - OIDC_SCOPES=openid email profile
-      # - OIDC_RESPONSE_MODE=fragment
-      # - OIDC_USE_DEFAULT_RESPONSE_MODE=true
-      # - OIDC_ADMIN_ROLES=admin
-      # - OIDC_PROJECT_OWNER_ROLES=project_owner
-      # - OIDC_BOARD_USER_ROLES=board_user
-      # - OIDC_CLAIMS_SOURCE=userinfo
-      # - OIDC_EMAIL_ATTRIBUTE=email
-      # - OIDC_NAME_ATTRIBUTE=name
-      # - OIDC_USERNAME_ATTRIBUTE=preferred_username
-      # - OIDC_ROLES_ATTRIBUTE=groups
-      # - OIDC_IGNORE_USERNAME=true
-      # - OIDC_IGNORE_ROLES=true
-      # - OIDC_ENFORCED=true
-
-      # Email Notifications (https://nodemailer.com/smtp/)
-      # - SMTP_HOST=
-      # - SMTP_PORT=587
-      # - SMTP_NAME=
-      # - SMTP_SECURE=true
-      # - SMTP_USER=
-      # - SMTP_PASSWORD=
-      # Optionally store in secrets - then SMTP_PASSWORD should not be set
-      # - SMTP_PASSWORD__FILE=/run/secrets/smtp_password
-      # - SMTP_FROM="Demo Demo" <demo@demo.demo>
-      # - SMTP_TLS_REJECT_UNAUTHORIZED=false
-
-      # Using Gravatar directly exposes user IPs and hashed emails to a third party (GDPR risk).
-      # Use a proxy you control for privacy, or leave commented out or empty to disable.
-      # - GRAVATAR_BASE_URL=https://www.gravatar.com/avatar/
     depends_on:
       postgres:
         condition: service_healthy
@@ -137,5 +43,3 @@ volumes:
   background-images:
   attachments:
   db-data:
-
-  planka-data: ### aumento
