@@ -3,8 +3,8 @@ name: CI Pruebas REST PLANKA
 on:
   push:
     branches: 
-    - main 
-    - daniela
+      - main 
+      - daniela
   workflow_dispatch:
 
 jobs:
@@ -50,16 +50,8 @@ jobs:
           done
           echo "Planka está en línea"
 
-      - name: Crear usuario admin y generar token
+      - name: Generar token de admin
         run: |
-          curl -X POST http://localhost:3000/api/users \
-            -H "Content-Type: application/json" \
-            -d '{
-                  "name": "Admin CI",
-                  "email": "'"$USER_EMAIL"'",
-                  "password": "'"$USER_PASSWORD"'",
-                  "role": "admin"
-                }'
           TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
             -H "Content-Type: application/json" \
             -d '{
@@ -85,4 +77,4 @@ jobs:
           publish_dir: ./allure-report
 
       - name: Cleanup Docker
-        run: docker compose down -v
+        run: docker compose down
