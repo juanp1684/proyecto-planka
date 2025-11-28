@@ -64,6 +64,12 @@ jobs:
          done
          echo "Planka está en línea"
 
+      - name: Inspect user_account table
+        run: |
+          docker exec postgres-1 \
+            psql -U "postgres" -d "planka" \
+            -c "SELECT * FROM user_account;"
+
       - name: Debug env vars 2
         run: |
           echo "USER_EMAIL: $USER_EMAIL"
