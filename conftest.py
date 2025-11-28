@@ -11,6 +11,7 @@ def get_token():
             "emailOrUsername": USER_EMAIL,
             "password": USER_PASSWORD
     }
+    print("PAYLOAD", payload)
     headers = {'Content-Type': 'application/json'}
     response = PlankaRequests.post(url, headers, payload)
     response_json = response.json()
