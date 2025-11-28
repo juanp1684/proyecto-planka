@@ -26,8 +26,6 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: on-failure
-    volumes:
-      - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=planka
       - POSTGRES_HOST_AUTH_METHOD=trust
