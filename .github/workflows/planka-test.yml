@@ -53,6 +53,9 @@ jobs:
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           BASE_URI: ${{ secrets.BASE_URI }}
         run: |
+         export USER_EMAIL=${USER_EMAIL}
+         export USER_PASSWORD=${USER_PASSWORD}
+         export BASE_URI=${BASE_URI}
          docker compose up -d
          echo "Esperando a que Planka arranque..."
          until curl --silent --fail http://localhost:3000 > /dev/null; do
