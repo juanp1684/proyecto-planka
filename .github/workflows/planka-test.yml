@@ -66,7 +66,7 @@ jobs:
 
       - name: Inspect user_account table
         run: |
-          DB_CONTAINER=$(docker ps --format "{{.Names}}" | grep "db")
+          DB_CONTAINER=$(docker ps --format "{{.Names}}" | grep "postgres")
           echo "DB container: $DB_CONTAINER"
           docker exec $DB_CONTAINER \
             psql -U "postgres" -d "planka" \
