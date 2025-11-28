@@ -18,6 +18,7 @@ services:
       - DEFAULT_ADMIN_EMAIL=${USER_EMAIL}        # email del admin CI
       - DEFAULT_ADMIN_PASSWORD=${USER_PASSWORD} # password del admin CI
       - DEFAULT_ADMIN_USERNAME=Daniela Tester   # nombre del admin
+      - DEFAULT_ADMIN_NAME=Daniela Tester
 
     depends_on:
       postgres:
